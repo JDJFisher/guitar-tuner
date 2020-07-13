@@ -71,7 +71,7 @@ stream.start_stream()
 window = 0.5 * (1 - np.cos(np.linspace(0, 2*np.pi, SAMPLES_PER_FFT, False)))
 
 # Print initial text
-print 'sampling at', FSAMP, 'Hz with max resolution of', FREQ_STEP, 'Hz'
+print('sampling at', FSAMP, 'Hz with max resolution of', FREQ_STEP, 'Hz')
 print
 
 # As long as we are getting data:
@@ -95,5 +95,4 @@ while stream.is_active():
     num_frames += 1
 
     if num_frames >= FRAMES_PER_FFT:
-        print 'freq: {:7.2f} Hz     note: {:>3s} {:+.2f}'.format(
-            freq, note_name(n0), n-n0)
+        print('freq: {:7.2f} Hz     note: {:>3s} {:+.2f}'.format(freq, note_name(n0), n-n0))
