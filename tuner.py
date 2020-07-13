@@ -79,7 +79,7 @@ while stream.is_active():
 
     # Shift the buffer down and new data in
     buf[:-FRAME_SIZE] = buf[FRAME_SIZE:]
-    buf[-FRAME_SIZE:] = np.fromstring(stream.read(FRAME_SIZE), np.int16)
+    buf[-FRAME_SIZE:] = np.frombuffer(stream.read(FRAME_SIZE), np.int16)
 
     # Run the FFT on the windowed buffer
     fft = np.fft.rfft(buf * window)
