@@ -1,7 +1,4 @@
-#! /usr/bin/env python
-######################################################################
-# tuner.py - a minimal command-line guitar/ukulele tuner in Python.
-# Requires numpy and pyaudio.
+
 ######################################################################
 # Author:  Matt Zucker
 # Date:    July 2016
@@ -26,7 +23,7 @@ NOTE_NAMES = 'C D♭ D E♭ E F G♭ G A♭ A B♭ B'.split()
 
 def freq_to_number(f): return 69 + 12*np.log2(f/440.0)
 def number_to_freq(n): return 440 * 2.0**((n-69)/12.0)
-def note_name(n): return NOTE_NAMES[n % 12] 
+def note_name(n): return NOTE_NAMES[n % 12]
 
 
 # Get min/max index within FFT of notes we care about.
@@ -34,7 +31,7 @@ def note_to_fftbin(n): return number_to_freq(n)/FREQ_STEP
 imin = max(0, int(np.floor(note_to_fftbin(NOTE_MIN-1))))
 imax = min(SAMPLES_PER_FFT, int(np.ceil(note_to_fftbin(NOTE_MAX+1))))
 
-# Allocate space to run an FFT. 
+# Allocate space to run an FFT.
 buf = np.zeros(SAMPLES_PER_FFT, dtype=np.float32)
 num_frames = 0
 
@@ -43,6 +40,8 @@ stream = pyaudio.PyAudio().open(format=pyaudio.paInt16,
                                 channels=1,
                                 rate=FSAMP,
                                 input=True,
+                                output=False,
+                                input_device_index=None,
                                 frames_per_buffer=FRAME_SIZE)
 
 stream.start_stream()
