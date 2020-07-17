@@ -8,7 +8,7 @@
 
 # Third party imports
 import numpy as np
-import pyaudio
+import pyaudio 
 
 NOTE_MIN = 47       # C4
 NOTE_MAX = 69       # A4
@@ -25,21 +25,22 @@ def number_to_freq(n): return 440 * 2.0**((n-69)/12.0)
 def note_name(n): return NOTE_NAMES[n % 12]
 def note_to_fftbin(n): return number_to_freq(n)/FREQ_STEP
 
-I_MIN = max(0, int(np.floor(note_to_fftbin(NOTE_MIN-1))))
-I_MAX = min(SAMPLES_PER_FFT, int(np.ceil(note_to_fftbin(NOTE_MAX+1))))
-
 
 class Tuner(object):
   
-    def __init__(self, dev_index=None):
+    def __init__(self, device=0):
+        self.device = device;
+
         # Initialize audio stream
-        self.stream = pyaudio.PyAudio().open(format=pyaudio.paInt16,
-                                        channels=1,
-                                        rate=FSAMP,
-                                        input=True,
-                                        output=False,
-                                        input_device_index=dev_index,
-                                        frames_per_buffer=FRAME_SIZE)
+        self.stream = pyaudio.PyAudio().open(
+            format=pyaudio.paInt16,
+            channels=1,
+            rate=FSAMP,
+            input=True,
+            output=False,
+            input_device_index=device,
+            frames_per_buffer=FRAME_SIZE
+        )
 
 
     def __del__(self):
@@ -59,9 +60,15 @@ class Tuner(object):
         # Create Hanning window function
         window = 0.5 * (1 - np.cos(np.linspace(0, 2*np.pi, SAMPLES_PER_FFT, False)))
 
+        # Get min/max index within FFT of notes we care about.
+        i_min = max(0, int(np.floor(note_to_fftbin(NOTE_MIN-1))))
+        i_max = min(SAMPLES_PER_FFT, int(np.ceil(note_to_fftbin(NOTE_MAX+1))))
+
         # Log info
         if verbose:
-            print(f'Sampling at {FSAMP} Hz with max resolution of {FREQ_STEP} Hz')
+            dev_info = pyaudio.PyAudio().get_device_info_by_host_api_device_index(0, self.device)
+            print(f'Input device { self.device } ({ dev_info.get("name") })')
+            print(f'Sampling at { FSAMP } Hz with max resolution of { FREQ_STEP } Hz')
 
         while self.stream.is_active():
 
@@ -73,7 +80,7 @@ class Tuner(object):
             fft = np.fft.rfft(buf * window)
 
             # Get frequency of maximum response in range
-            freq = (np.abs(fft[I_MIN:I_MAX]).argmax() + I_MIN) * FREQ_STEP
+            freq = (np.abs(fft[i_min:i_max]).argmax() + i_min) * FREQ_STEP
 
             # Get note number and nearest note
             n = freq_to_number(freq)
